@@ -1,0 +1,80 @@
+---
+- name: Install docker package(s)
+  become: yes
+  block:
+    - name: Remove previous docker related packages
+      apt:
+        name:
+          - docker
+          - docker-engine
+          - docker.io
+          - containerd
+          - runc
+        state: absent
+    - name: Install os packages for setting up docker repository
+      apt:
+        update_cache: true
+        name:
+          - ca-certificates
+          - software-properties-common
+          - curl
+          - gnupg
+          - lsb-release
+        state: latest
+    - name: Add docker gpg key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: Add docker apt repository url to apt source list directory
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu "{{ dockerRepositoryUbuntuVersion }}" stable
+        state: present
+    - name: Install docker-ce package
+      apt:
+        update_cache: yes
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: latest
+
+
+- name: Install package(s) for python to use docker
+  become: yes
+  block:
+    - name: Install python pip ("package manager")
+      apt:
+        update_cache: yes
+        state: latest
+        name:
+          - python3-pip
+    - name: Install docker module(s) for python via pip
+      pip:
+        name:
+          - docker
+        state: latest
+
+
+- name: Install docker-compose package(s)
+  become: yes
+  block:
+    - name: Install docker-compose package
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: 'u+x,g+x'
+
+
+- name: Test installation
+  become: yes
+  block:
+    - name: Run docker hello world image
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
+      docker_container:
+        name: test-container
+        image: "{{ dockerTestImage }}"
+        auto_remove: yes
+        container_default_behavior: no_defaults
+    - name: Print docker-compose version
+      shell: docker-compose --version
