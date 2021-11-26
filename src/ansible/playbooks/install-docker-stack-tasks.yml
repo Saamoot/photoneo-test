@@ -48,7 +48,7 @@
         state: latest
         name:
           - python3-pip
-    - name: Install docker module(s) for python via pip
+    - name: Install python docker module(s) via pip
       pip:
         name:
           - docker
@@ -58,11 +58,11 @@
 - name: Install docker-compose package(s)
   become: yes
   block:
-    - name: Install docker-compose package
-      get_url:
-        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
-        dest: /usr/local/bin/docker-compose
-        mode: 'u+x,g+x'
+    - name: Install docker-compose package via pip
+      pip:
+        name:
+          - docker-compose
+        state: latest
 
 
 - name: Test installation
