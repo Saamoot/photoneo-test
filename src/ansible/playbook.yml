@@ -1,9 +1,24 @@
 ---
 - name: Install docker stack
-  hosts: testServers
+  hosts:
+    - testServers
   vars:
     dockerRepositoryUbuntuVersion: "focal"
     dockerTestImage: "hello-world"
 
   tasks:
     - include: ./playbooks/install-docker-stack-tasks.yml
+
+- name: Deploy application
+  become: yes
+  hosts:
+    - testServers
+  tasks:
+    - name: Copy docker-compose file to host
+      copy:
+        src: ../docker-compose/
+        dest: /tmp/docker-compose
+    - name: Run deployment using docker-compose
+      docker_compose:
+        project_name: photoneo-test
+        project_src: /tmp/docker-compose
