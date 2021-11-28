@@ -1,0 +1,5 @@
+---
+- name: Install controller host required packages
+  hosts: localhost
+  tasks:
+    - include: ./playbooks/install-project-packages.yml

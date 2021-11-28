@@ -1,0 +1,33 @@
+---
+- name: Install common os package(s)
+  become: yes
+  apt:
+    name:
+      - make
+      - sshpass
+    state: latest
+
+- name: Install virtualbox
+  become: yes
+  block:
+    - name: Download virtualbox deb file
+      get_url:
+        url: https://download.virtualbox.org/virtualbox/6.1.30/virtualbox-6.1_6.1.30-148432~Ubuntu~eoan_amd64.deb
+        dest: /tmp/virtualbox.deb
+    - name: Install virtualbox using deb file
+      apt:
+        deb: /tmp/virtualbox.deb
+        state: present
+#    - name: Add virtualbox repository
+#      apt_repository:
+#        repo: deb https://download.virtualbox.org/virtualbox/debian "{{ dockerRepositoryUbuntuVersion }}" contrib
+#        state: present
+#    - name: Add docker gpg key
+#      apt_key:
+#        url: https://www.virtualbox.org/download/oracle_vbox_2016.asc
+#        state: present
+#    - name: Install virtualbox package
+#      apt:
+#        name:
+#          - virtualbox
+#        state: present
