@@ -1,7 +1,8 @@
 ---
 - name: Install docker stack
+#  hosts: '{{ vagrant_managed_host | default("testServers") }} '
   hosts:
-    - testServers
+    - vagrantHosts
   vars:
     dockerRepositoryUbuntuVersion: "focal"
     dockerTestImage: "hello-world"
@@ -9,10 +10,10 @@
   tasks:
     - include: ./playbooks/install-docker-stack-tasks.yml
 
+
 - name: Deploy application
-  become: yes
   hosts:
-    - testServers
+    - vagrantHosts
   tasks:
     - name: Copy docker-compose file to host
       copy:
