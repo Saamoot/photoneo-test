@@ -61,3 +61,7 @@ make pythonRunDatabaseScriptDump
 ```shell
 make pythonRunDatabasePgDump
 ```
+- when done vagrant host can be stopped and removed
+```shell
+make vagrantRemoveHost
+```
