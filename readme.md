@@ -31,13 +31,17 @@ cd photoneo-test
 ```shell
 make vagratStartHost
 ```
+- install required packages on virtualhost and deploy application
+```shell
+make ansibleRun
+```
 - finish first time wiki js setup
   - get virtual host ip with command `make vagrantHostIp`
   - open browser and visit page `http://{virtual-host-ip}`
   - set admin user name and password
   - set site url `http://{virtual-host-ip}`
   - submit
-- (optional) login to wiki js and enable graphql api
+- (optional/required only for python script home page creation) login to wiki js and enable graphql api
   - login using credentials from previous step
   - got to page `http://{virtual-host-ip}/a/api`
   - press "enable api" button
