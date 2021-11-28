@@ -8,6 +8,13 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision :shell, path: "boostrap.sh"
 
+  # use ansible without creating inventory file configuration, in which case hosts configuration: "hosts: all"
+  # config.vm.provision :ansible do |ansible|
+  #     ansible.playbook = "../ansible/playbook.yml"
+  # end
+
+  config.vm.synced_folder "../python/", "/vagrant/python"
+
   config.vm.provider "virtualbox" do |vb|
     # Display the VirtualBox GUI when booting the machine
     vb.gui = false
