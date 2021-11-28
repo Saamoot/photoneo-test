@@ -40,7 +40,13 @@ pythonRunDatabaseScriptDump:
 	/usr/bin/python3 ./src/python/dump-database.py --database-host="$(shell make -s vagrantHostIp)" --output-file=./workdir/db-dump.sql.zip
 
 pythonRunDatabasePgDump:
-	@cd src/vagrant && vagrant ssh -c "cd /vagrant/python && python3 pg_dump.py --action=dump"
+	make -s pythonInstallPackages
+	@cd src/vagrant && vagrant ssh -c "cd /vagrant/python && python3 pg_dump.py --action=dump" 2>/dev/null
+
+pythonRunDatabasePgRestore:
+	make -s pythonInstallPackages
+	@cd src/vagrant && vagrant ssh -c "cd /vagrant/python && python3 pg_dump.py --action=restore" 2>/dev/null
+
 
 pythonRunCreatePage:
 	make -s pythonInstallPackages
