@@ -1,4 +1,3 @@
-import os
 import sys
 from subprocess import PIPE, Popen
 import shlex
@@ -15,9 +14,9 @@ def parse_arguments():
     )
 
     parser.add_argument(
-        '--database-host',
-        default='database',
-        help='Database host url/domain/ip'
+        '--database-container',
+        default='photoneo-test_database_1',
+        help='Name of container in which database is running'
     )
 
     parser.add_argument(
@@ -47,20 +46,23 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def dump_database(host_name, database_name, user_name, output_file):
-    command = f'sudo docker exec photoneo-test_database_1 pg_dump {database_name} -U {user_name}'
-
+def execute_command(command):
     process = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    return process.communicate()
 
-    result = process.communicate()
 
-    file_handle = open(output_file, 'w')
-    for line in result:
-        file_handle.write(bytes(line).decode('utf-8'))
-    file_handle.close()
+def dump_database(database_container, database_name, user_name, output_file):
+    docker_dump_file_path = '/tmp/dump.sql'
+
+    dump_database_command = f'sudo docker exec {database_container} pg_dump {database_name} -U {user_name}'
+    dump_database_command += f'-Fc > {docker_dump_file_path}'
+
+    copy_dump_from_container_command = f'sudo docker cp {database_container}:{docker_dump_file_path} {output_file}'
+
+    execute_command(dump_database_command)
+    execute_command(copy_dump_from_container_command)
 
     zip_file = output_file + '.zip'
-
     zip_files(zip_file, [output_file])
 
     print('raw sql dump: ' + output_file)
@@ -68,23 +70,24 @@ def dump_database(host_name, database_name, user_name, output_file):
     print('"/vagrant/python" is virtual host directory mapped on host directory ".../{project-root}/src/python"')
 
 
-def restore_database(host_name, database_name, user_name, input_file):
-    # Remove the '<' from the pg_restore command.
-    command = f'sudo docker exec photoneo-test_database_1 '
-    command += f'pg_restore -h {host_name} -d {database_name} -U {user_name} {input_file}'
+def restore_database(database_container, database_name, user_name, input_file):
+    docker_dump_file = '/tmp/dump.sql'
+    stop_database_container_command = 'sudo docker stop {database_container}}'
+    start_database_container_command = 'sudo docker start {database_container}}'
+    drop_database_command = f'sudo docker exec {database_container} dropdb {database_name} -U {user_name}'
+    create_database_command = f'sudo docker exec {database_container} createdb -U {user_name} {database_name}'
+    copy_input_file_command = f'sudo docker cp {input_file} {database_container}:{docker_dump_file}'
+    restore_database_command = 'sudo docker exec {database_container}} psql '
+    restore_database_command += f' -U {user_name} {database_name} < {docker_dump_file}'
 
-    # Use shlex to use a list of parameters in Popen instead of using the
-    # command as is.
-    command = shlex.split(command)
-
-    # Let the shell out of this (i.e. shell=False)
-    p = Popen(command, shell=False, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-
-    result = p.communicate()
-
-    print(result)
-
-    return result
+    print('preparing container for restore: re-starting container, dropping and creating empty database')
+    execute_command(stop_database_container_command)  # drops active connections
+    execute_command(start_database_container_command)
+    execute_command(drop_database_command)
+    execute_command(create_database_command)
+    print(f'restoring database from file {input_file} / {database_container}:{docker_dump_file}')
+    execute_command(copy_input_file_command)
+    execute_command(restore_database_command)
 
 
 def zip_files(zip_file_name, file_names):
@@ -106,14 +109,14 @@ def main():
 
     if 'dump' == arguments.action:
         dump_database(
-            host_name=arguments.database_host,
+            database_container=arguments.database_container,
             database_name=arguments.database_name,
             user_name=arguments.database_user,
             output_file=arguments.dump_file
         )
     elif 'restore' == arguments.action:
         restore_database(
-            host_name=arguments.database_host,
+            database_container=arguments.database_container,
             database_name=arguments.database_name,
             user_name=arguments.database_user,
             input_file=arguments.dump_file
