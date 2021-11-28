@@ -11,7 +11,7 @@ def parse_arguments():
     # not sane default value, good for local development
     parser.add_argument(
         '--markdown-file',
-        default='/data/projects/photoneo-test/documents/readme.md',
+        default='../../readme.md',
         help='Content of wiki page (markdown format)',
         nargs='?'
     )
