@@ -89,7 +89,7 @@ def create_page(graph_ql_client, create_page_graph_ql_template_file, title, path
     data = {
         "content": content,
         "description": "Page created using graphql api via python gql",
-        "editor": "code",
+        "editor": "markdown",
         "isPublished": True,
         "isPrivate": False,
         "locale": "en",
