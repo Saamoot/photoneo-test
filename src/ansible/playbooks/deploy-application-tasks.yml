@@ -1,0 +1,10 @@
+---
+- name: Copy docker-compose file to host
+  copy:
+    src: ../docker-compose/
+    dest: /tmp/docker-compose
+- name: Run deployment using docker-compose
+  become: yes
+  docker_compose:
+    project_name: photoneo-test
+    project_src: /tmp/docker-compose

@@ -15,11 +15,4 @@
   hosts:
     - vagrantHosts
   tasks:
-    - name: Copy docker-compose file to host
-      copy:
-        src: ../docker-compose/
-        dest: /tmp/docker-compose
-    - name: Run deployment using docker-compose
-      docker_compose:
-        project_name: photoneo-test
-        project_src: /tmp/docker-compose
+    - include: ./playbooks/deploy-application-tasks.yml
