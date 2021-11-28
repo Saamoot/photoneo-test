@@ -3,9 +3,9 @@
 - name: Clean up existing docker package(s)
   become: yes
   block:
-    - name: Check if pip present on host
-      command: dpkg-query -l pip
-      register: pip_package_check
+    - name: "Check if python pip is installed"
+      package_facts:
+        manager: "auto"
     - name: Remove previous docker related packages
       apt:
         name:
@@ -22,7 +22,7 @@
           - docker-py
           - docker-compose
         state: absent
-      when: pip_package_check is succeeded
+      when: "'pip' in ansible_facts.packages"
 
 - name: Install docker package(s)
   become: yes
