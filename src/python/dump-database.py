@@ -9,6 +9,7 @@ import psycopg2
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Dump postgresql database to file and compress it.')
+
     parser.add_argument(
         '--env-file',
         default='/data/projects/photoneo-test/src/docker-compose/.env',
