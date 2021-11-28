@@ -54,3 +54,6 @@ make pythonRunCreatePage
 make pythonRunDatabaseScriptDump
 ```
   - full pg_dump
+```shell
+make pythonRunDatabasePgDump
+```
